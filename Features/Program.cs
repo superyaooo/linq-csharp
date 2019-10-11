@@ -16,12 +16,26 @@ namespace Features
                 new Employee{Id = 2,Name = "pop"} 
             };
 
-            var sales = new List<Employee>
+            var sales = new List<Employee>()
             {
                 new Employee{Id = 3, Name = "doug"}
             };
-            
-            Console.WriteLine(sales.Count);
+
+            foreach (var employee in developers.Where(e=>e.Name.Length == 3)
+                                                .OrderBy(e=>e.Name))
+            {
+                Console.WriteLine(employee.Name);
+            }
+
+            // last param is return type; Linq uses Func<>
+            Func<int, int> square = x => x * x;
+            Func<int, int, int> add = (x, y) => x + y;
+            // return type void
+            Action<int> write = x => Console.WriteLine(x);
+
+            write(square(add(3,5)));
+
+            Console.WriteLine("");
         }
     }
 }
