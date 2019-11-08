@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -11,7 +12,7 @@ namespace Cars
     {
         static void Main(string[] args)
         {
-            var cars = ProcessCars("fuel.csv");
+//            var cars = ProcessCars("fuel.csv");
 
             /*var query = cars.OrderByDescending(c => c.Combined)
                 .ThenBy(c=>c.Name);   // secondary sort .ThenBy()
@@ -38,7 +39,7 @@ namespace Cars
                 Console.WriteLine(name);
             }*/
 
-            var manufacturers = ProcessManufacturers("manufacturers.csv");
+//            var manufacturers = ProcessManufacturers("manufacturers.csv");
 
             /*var query = cars.Join(manufacturers, 
                                     c => c.Manufacturer,
@@ -67,8 +68,43 @@ namespace Cars
                     Console.WriteLine($"\t{car.Name} : {car.Combined}");
                 }
             }*/
-            
 
+
+
+            Database.SetInitializer(new DropCreateDatabaseIfModelChanges<CarDb>());
+            InsertData();
+            QueryData();
+        }
+
+        private static void QueryData()
+        {
+            var db = new CarDb();
+
+            var query = db.Cars.Where(c => c.Manufacturer == "BMW")
+                .OrderByDescending(c => c.Combined)
+                .ThenBy(c => c.Name)
+                .Take(10);
+
+            foreach (var car in query)
+            {
+                Console.WriteLine($"{car.Name}: {car.Combined}");
+            }
+        }
+
+        private static void InsertData()
+        {
+            var cars = ProcessCars("fuel.csv");
+            var db = new CarDb();
+
+            if (!db.Cars.Any())
+            {
+                foreach (var car in cars)
+                {
+                    db.Cars.Add(car);
+                }
+
+                db.SaveChanges();
+            }
         }
 
         private static List<Manufacturer> ProcessManufacturers(string path)
